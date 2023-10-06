@@ -1,32 +1,16 @@
 // Initialize dotenv
 require('dotenv').config();
-const cron = require('node-cron');
-const { Client, GatewayIntentBits } = require('discord.js');
-const { setupCommands } = require('./commands');
-const { checkAndSendBirthdayMessages } = require('./birthday');
+const { Client, Events, GatewayIntentBits, Partials } = require('discord.js');
+const { setupPinCommands } = require('./george/commands');
 
 const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.DirectMessages,
-    ],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessageReactions],
+    partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
-
-// Set the bot's prefix
-const prefix = '!';
-// Set up bot commands
-setupCommands(client, prefix);
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
-
-    // Schedule the daily birthday check
-    cron.schedule('0 0 * * *', () => {
-        checkAndSendBirthdayMessages(client);
-    });
+    setupPinCommands(client, Events);
 });
 
 // Log in to the bot using your token
